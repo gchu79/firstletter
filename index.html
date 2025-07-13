@@ -22,8 +22,8 @@
       white-space: pre-wrap;
       border: 1px solid #ccc;
       padding: 20px;
-      font-size: 18px;
-      font-family: 'Quicksand', sans-serif;
+      font-size: 20px;
+      font-family: 'Tisa', serif;
       background-color: #f9f9f9;
       color: #333;
       margin-top: 5px;
@@ -67,6 +67,23 @@
       border-radius: 0;
       overflow: auto;
     }
+	
+	/* Default font size */
+	#inputText,
+	#bibleRef,
+	#output {
+	  font-size: 16px;
+	}
+
+	/* Increase font size on small screens (like iPhones) */
+	@media (max-width: 480px) {
+	  #inputText,
+	  #bibleRef,
+	  #output {
+	    font-size: 28px;
+	  }
+	}
+	
   </style>
 </head>
 
@@ -148,7 +165,7 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
     //  result = result.replace("<<<BIBLE_REF>>>", ref);
     //});
 
-	const result = text.replace(/\b(\w)/g, "$1").replace(/\B\w+/g, "").replace("(E)", "");
+	const result = text.replace(/\b(\w)/g, "$1").replace(/\B\w+/g, "").replace(/\(E\)/g, "");
 	const cleanedResult = result.replace(/^\s*[\r\n]/gm, '').replace(/^\s+/gm, '');
 	
     document.getElementById("output").textContent = cleanedResult;
