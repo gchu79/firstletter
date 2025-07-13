@@ -22,8 +22,8 @@
       white-space: pre-wrap;
       border: 1px solid #ccc;
       padding: 20px;
-      font-size: 20px;
-      font-family: 'Georgia', serif;
+      font-size: 18px;
+      font-family: 'Quicksand', sans-serif;
       background-color: #f9f9f9;
       color: #333;
       margin-top: 5px;
@@ -75,11 +75,12 @@
 <div class="parchment-box">
 
 <h1>🔡 First Letter Text Tool</h1>
-<p>Paste your text below and click "Generate" to show only the first letter of each word, keeping spaces and punctuation.</p>
+<p>Enter bible reference or paste your text below and click "Generate" to show only the first letter of each word.</p>
 
 <label for="bibleRef">Enter Bible Reference:</label>
-<input type="text" id="bibleRef" placeholder="e.g., John 3:16">
+<input type="text" id="bibleRef" style="height: 24px;" placeholder="e.g., John 3:16">
 <button onclick="fetchBibleText()">ESV</button>
+
 
 <h3>Paste your text below:</h3>
 <textarea id="inputText" placeholder="Type or paste text here..."></textarea>
@@ -104,6 +105,11 @@
 <h3>Output:</h3>
 <div id="output"></div>
 <div id="copyStatus"></div>
+
+<footer style="font-size: 0.75em; margin-top: 2em; color: #555;">
+Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved. The ESV text may not be quoted in any publication made available to the public by a Creative Commons license. The ESV may not be translated into any other language.
+</footer>
+
 
 </div>
 
@@ -142,9 +148,10 @@
     //  result = result.replace("<<<BIBLE_REF>>>", ref);
     //});
 
-	const result = text.replace(/\b(\w)/g, "$1").replace(/\B\w+/g, "");
+	const result = text.replace(/\b(\w)/g, "$1").replace(/\B\w+/g, "").replace("(E)", "");
+	const cleanedResult = result.replace(/^\s*[\r\n]/gm, '').replace(/^\s+/gm, '');
 	
-    document.getElementById("output").textContent = result;
+    document.getElementById("output").textContent = cleanedResult;
   }
 
   function copyBoth() {
@@ -180,7 +187,7 @@
     const ref = document.getElementById("bibleRef").value;
     const inputBox = document.getElementById("inputText");
 
-    fetch(`https://api.esv.org/v3/passage/text/?q=${encodeURIComponent(ref)}&include-footnotes=false`, {
+    fetch(`https://api.esv.org/v3/passage/text/?q=${encodeURIComponent(ref)}&include-footnotes=false&include-headings=false`, {
       headers: {
         Authorization: "Token bfc087d29a9dbacd714085aef4cb29f487d4fcf8"
       }
@@ -197,7 +204,53 @@
       inputBox.value = "Error fetching passage: " + error;
     });
   }
+  
+	function fetchNIVBibleText() {
+	  const ref = document.getElementById("bibleRef").value;
+	  const inputBox = document.getElementById("inputText");
+
+	  // Replace with your actual API key
+	  const apiKey = "fabaf78c1d42f5e27a6801c1ed4df83d";
+	  const bibleId = "06125adad2d5898a-01"; // NIV Bible ID
+
+	  // Convert reference to passage ID format
+	  fetch(`https://api.scripture.api.bible/v1/bibles/${bibleId}/search?query=${encodeURIComponent(ref)}`, {
+		headers: {
+		  "api-key": apiKey
+		}
+	  })
+	  .then(response => response.json())
+	  .then(searchData => {
+		if (!searchData.data.passages || searchData.data.passages.length === 0) {
+		  inputBox.value = "Passage not found.";
+		  return;
+		}
+
+		const passageId = searchData.data.passages[0].id;
+
+		return fetch(`https://api.scripture.api.bible/v1/bibles/${bibleId}/passages/${passageId}`, {
+		  headers: {
+			"api-key": apiKey
+		  }
+		});
+	  })
+	  .then(response => response.json())
+	  .then(data => {
+		const passage = data.data.content.replace(/<[^>]+>/g, ""); // Strip HTML tags
+		inputBox.value = passage || "Passage not found.";
+	  })
+	  .catch(error => {
+		inputBox.value = "Error fetching passage: " + error;
+	  });
+	}
+  
+  
+  
+  
 </script>
 
 </body>
+
+
+
 </html>
