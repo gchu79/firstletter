@@ -92,6 +92,69 @@
 	    font-size: 40px;
 	  }
 	}
+	
+    .button-row {
+      text-align: left;
+      margin-bottom: 2rem;
+    }
+
+    #outputCard {
+      display: none; /* stays hidden */
+      padding: 2rem;
+      border: none;
+      background: white;
+      font-size: 1.1em;
+    }
+
+    #outputCard h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #005577;
+    }
+
+    #outputCard p {
+      text-align: left;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+
+	@media print {
+	  body * {
+		visibility: hidden;
+	  }
+	  #outputCard, #outputCard * {
+		visibility: visible;
+	  }
+	  #outputCard {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+	  }
+	}
+ 
+
+    .card {
+      padding: 2rem;
+
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      box-shadow: none;
+    }
+
+    .card h1 {
+      text-align: center;
+      color: #005577;
+      margin-bottom: 1rem;
+    }
+
+    .card p {
+      text-align: left;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }	
 			
   </style>
 </head>
@@ -112,10 +175,16 @@
 
 
 <h3>Paste your text below:</h3>
-<textarea id="inputText" placeholder="Type or paste text here..."></textarea>
+<textarea id="inputText" placeholder="Type or paste text here...first line is the header or reference"></textarea>
 <br>
-<button onclick="extractFirstLetters()">Generate</button>
-<button onclick="copyBoth()">Copy Both</button>
+<div class="button-row">
+	<button onclick="extractFirstLetters()">Generate First Letter</button>
+	<button onclick="copyBoth()">Copy Both</button>
+	<button onclick="generateCard()">Generate Card</button>	
+    <button onclick="printCard()">🖨️ Print Card</button>	
+</div>
+
+
 
 <h3>Speech Settings:</h3>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
@@ -134,6 +203,8 @@
 <h3>First Letter:</h3>
 <div id="output"></div>
 <div id="copyStatus"></div>
+
+<div class="card" id="outputCard" style="display:none;"></div>
 
 <footer style="font-size: 0.75em; margin-top: 2em; color: #555;">
 Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved. 
@@ -178,8 +249,27 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
     //  result = result.replace("<<<BIBLE_REF>>>", ref);
     //});
 
-	const result = text.replace(/\b(\w)/g, "$1").replace(/\B\w+/g, "").replace(/\(E\)/g, "");
-	const cleanedResult = result.replace(/^\s*[\r\n]/gm, '').replace(/^\s+/gm, '');
+	  // Split text into lines
+	  const lines = text.split(/\r?\n/);
+
+	  // Keep the first line as-is
+	  const firstLine = lines[0];
+
+	  // Process the rest of the lines
+	  const processedLines = lines.slice(1).map(line =>
+		line
+		  .replace(/\b(\w)/g, "$1") // Keep only first letters of words
+		  .replace(/\B\w+/g, "")    // Remove rest of the word
+		  .replace(/\(E\)/g, "")    // Remove specific pattern
+	  );
+
+	  // Combine first line with processed lines
+	  const result = [firstLine, ...processedLines].join("\n");
+
+	  // Clean up result
+	  const cleanedResult = result
+		.replace(/^\s*[\r\n]/gm, '') // Remove empty lines
+		.replace(/^\s+/gm, '');      // Remove leading spaces
 	
     document.getElementById("output").textContent = cleanedResult;
   }
@@ -228,6 +318,9 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
       passage = passage.replace(/\(\d+\)/g, ""); // remove (99)
       passage = passage.replace(/\[\d+\]/g, ""); // remove [99]
       passage = passage.split("\n").filter(line => !/^\(\d+\)/.test(line)).join("\n"); // remove lines starting with (99)
+	  
+	  passage = passage.replace(/\n{2,}/g, "\n"); // remove double (or more) new lines
+
       inputBox.value = passage;
     })
     .catch(error => {
@@ -274,8 +367,33 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
 	  });
 	}
   
-  
-  
+    function generateCard() {
+      const inputText = document.getElementById("inputText").value.trim();
+      const additionalContent = document.getElementById("output").innerText.trim();
+      if (!inputText) return;
+
+      const lines = inputText.split('\n');
+      const header = lines[0];
+      const bodyLines = lines.slice(1).join('\n');
+      const fullBody = `${bodyLines}\n\n${additionalContent}`;
+
+      const card = document.getElementById("outputCard");
+      card.innerHTML = `<h1>${header}</h1><p>${fullBody}</p>`;
+	  card.style.display = 'block';
+
+	  console.log("Print content:", card.innerHTML); // Debugging line
+    }
+
+    function printCard() { 
+	  const card = document.getElementById("outputCard");	
+	  card.style.display = 'block';
+	  console.log("Print content:", card.innerHTML); // Debugging line	  
+
+	  setTimeout(() => {
+	    window.print();
+	  }, 100);
+
+	}
   
 </script>
 
