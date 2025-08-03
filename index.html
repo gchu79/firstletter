@@ -120,8 +120,11 @@
 
 
 	@media print {
-	  body * {
+	  body, html {
 		visibility: hidden;
+    margin: 0;
+    padding: 0;
+    background: none !important;		
 	  }
 	  #outputCard, #outputCard * {
 		visibility: visible;
@@ -133,12 +136,23 @@
 		width: 100%;
 	  }
 
-	  .card {
-		max-width: 100%;
-		padding: 1rem;
-		margin: 0;
-		box-shadow: none;
-	  }
+  .parchment-box {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .card {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 1rem !important;
+    box-shadow: none !important;
+  }
 	  
 	}
  
