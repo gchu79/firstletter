@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>First Letter Extractor with Voice Settings</title>
   <style>
@@ -133,7 +133,7 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 100%;
+		width: 95%;
 	  }
 
 	  .parchment-box {
@@ -147,11 +147,18 @@
 	  }
 
 	  .card {
-		max-width: 100% !important;
-		width: 100% !important;
+		max-width: 95% !important;
+		width: 95% !important;
 		margin: 0 auto !important;
 		padding: 1rem !important;
 		box-shadow: none !important;
+		
+    /* Add these for print-specific word handling */
+
+		  word-wrap: break-word;
+		  overflow-wrap: break-word;
+		  hyphens: auto;
+
 	  }
 	  
 	  @page {
@@ -168,6 +175,7 @@
       margin: auto;
       background: #fff;
       box-shadow: none;
+
     }
 
     .card h1 {
