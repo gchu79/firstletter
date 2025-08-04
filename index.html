@@ -350,14 +350,20 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
       passage = passage.replace(/\(\d+\)/g, ""); // remove (99)
       passage = passage.replace(/\[\d+\]/g, ""); // remove [99]
       passage = passage.split("\n").filter(line => !/^\(\d+\)/.test(line)).join("\n"); // remove lines starting with (99)
+
+	  passage = passage.replace(/(^\s*$\n)+/gm, "\n");
 	  
-	  passage = passage.replace(/\n{2,}/g, "\n"); // remove double (or more) new lines
+	  passage = passage.replace(/\n{3,}/g, "\n"); // remove double (or more) new lines
 
       inputBox.value = passage;
     })
     .catch(error => {
       inputBox.value = "Error fetching passage: " + error;
     });
+	
+	  const card = document.getElementById("outputCard");
+      card.innerHTML = ``;
+	
   }
   
 	function fetchNIVBibleText() {
