@@ -426,6 +426,14 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
 		} else {
 		alert("Please enter a reference.");
     }
+	
+	inputBox.value = '';
+	
+	const card = document.getElementById("outputCard");
+    card.innerHTML = ``;
+	
+	document.getElementById("output").textContent = '';
+	
   }
   
     function generateCard() {
