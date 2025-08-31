@@ -188,6 +188,38 @@
       white-space: pre-wrap;
     }	
 			
+    #nivButton:hover + #tooltip {
+
+      display: block;
+
+    }
+
+    #tooltip {
+      display: none;
+      position: absolute;
+      top: 60px;
+      left: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 12px;
+      width: 340px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 10;
+      font-size: 12px;
+	  font-family: 'Arial', san-serif;
+    }
+
+    #tooltip img {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .container {
+      position: relative;
+      display: inline-block;
+    }
+		
   </style>
 </head>
 
@@ -205,6 +237,18 @@
 <input type="text" id="bibleRef" style="height: 24px;" placeholder="e.g., John 3:16">
 <button onclick="fetchBibleText()">ESV</button>
 
+  <div class="container">
+    <button id="nivButton" onclick="fetchNIVBibleText()">NIV</button>
+    <div id="tooltip">
+      <strong>For NIV:</strong><br/>
+      Enter a Bible Reference in the input box (e.g., <em>Joh 3:16</em>) and click the NIV button.<br/>
+      This will open the passage in BibleGateway using the NIV translation.<br/>
+	  Uncheck the Page Options as shown.<br/>
+	  Copy the NIV text and paste into the "Paste your text below:" box.<br/>
+      Make sure the first line is the title. Adjust/add as needed.
+      <img src=gear.jpeg alt="Tooltip" />
+    </div>
+  </div>
 
 <h3>Paste your text below:</h3>
 <textarea id="inputText" placeholder="Type or paste text here...first line is the header or reference"></textarea>
@@ -293,6 +337,8 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
 		  .replace(/\b(\w)/g, "$1") // Keep only first letters of words
 		  .replace(/\B\w+/g, "")    // Remove rest of the word
 		  .replace(/\(E\)/g, "")    // Remove specific pattern
+		  .replace(/\(N\)/g, '')    // Remove specific pattern
+		  .replace(/\d+ */g, '')
 	  );
 
 	  // Combine first line with processed lines
@@ -302,6 +348,7 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
 	  const cleanedResult = result
 		.replace(/^\s*[\r\n]/gm, '') // Remove empty lines
 		.replace(/^\s+/gm, '');      // Remove leading spaces
+
 	
     document.getElementById("output").textContent = cleanedResult;
   }
@@ -361,49 +408,26 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
       inputBox.value = "Error fetching passage: " + error;
     });
 	
-	  const card = document.getElementById("outputCard");
-      card.innerHTML = ``;
+	const card = document.getElementById("outputCard");
+    card.innerHTML = ``;
+	
+	document.getElementById("output").textContent = '';
 	
   }
   
-	function fetchNIVBibleText() {
-	  const ref = document.getElementById("bibleRef").value;
-	  const inputBox = document.getElementById("inputText");
+  function fetchNIVBibleText() {
+	const ref = document.getElementById("bibleRef").value.trim();
+	const inputBox = document.getElementById("inputText");
+	  
+    if (ref) {
 
-	  // Replace with your actual API key
-	  const apiKey = "fabaf78c1d42f5e27a6801c1ed4df83d";
-	  const bibleId = "06125adad2d5898a-01"; // NIV Bible ID
-
-	  // Convert reference to passage ID format
-	  fetch(`https://api.scripture.api.bible/v1/bibles/${bibleId}/search?query=${encodeURIComponent(ref)}`, {
-		headers: {
-		  "api-key": apiKey
-		}
-	  })
-	  .then(response => response.json())
-	  .then(searchData => {
-		if (!searchData.data.passages || searchData.data.passages.length === 0) {
-		  inputBox.value = "Passage not found.";
-		  return;
-		}
-
-		const passageId = searchData.data.passages[0].id;
-
-		return fetch(`https://api.scripture.api.bible/v1/bibles/${bibleId}/passages/${passageId}`, {
-		  headers: {
-			"api-key": apiKey
-		  }
-		});
-	  })
-	  .then(response => response.json())
-	  .then(data => {
-		const passage = data.data.content.replace(/<[^>]+>/g, ""); // Strip HTML tags
-		inputBox.value = passage || "Passage not found.";
-	  })
-	  .catch(error => {
-		inputBox.value = "Error fetching passage: " + error;
-	  });
-	}
+		const encodedPassage = encodeURIComponent(ref);
+		const url = `https://www.biblegateway.com/passage/?search=${encodedPassage}&version=NIV`;
+        window.open(url, "_blank");
+		} else {
+		alert("Please enter a reference.");
+    }
+  }
   
     function generateCard() {
       const inputText = document.getElementById("inputText").value.trim();
