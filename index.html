@@ -153,6 +153,13 @@
 		padding: 1rem !important;
 		box-shadow: none !important;
 		
+
+    .small-number {
+      font-size: 0.5em;
+      color: #555;
+    }
+		
+		
     /* Add these for print-specific word handling */
 
 
@@ -393,9 +400,10 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
     .then(response => response.json())
     .then(data => {
       let passage = data.passages ? data.passages.join("\n") : "Passage not found.";
-      passage = passage.replace(/\(\d+\)/g, ""); // remove (99)
-      passage = passage.replace(/\[\d+\]/g, ""); // remove [99]
-      passage = passage.split("\n").filter(line => !/^\(\d+\)/.test(line)).join("\n"); // remove lines starting with (99)
+//      passage = passage.replace(/\(\d+\)/g, ""); // remove (99)
+//      passage = passage.replace(/\[\d+\]/g, ""); // remove [99]
+//      passage = passage.split("\n").filter(line => !/^\(\d+\)/.test(line)).join("\n"); // remove lines starting with (99)
+		passage = passage.replace(/[\[|\]]/g, ""); // remove [ ]
 
 	  passage = passage.replace(/(^\s*$\n)+/gm, "\n");
 	  
@@ -444,7 +452,8 @@ Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard 
       const lines = inputText.split('\n');
       const header = lines[0];
       const bodyLines = lines.slice(1).join('\n');
-      const fullBody = `${bodyLines}\n\n${additionalContent}`;
+	  const formatted = bodyLines.replace(/(\d+)/g, '<span class="small-number">$1</span>');
+      const fullBody = `${formatted}\n\n${additionalContent}`;
 
       const card = document.getElementById("outputCard");
       card.innerHTML = `<h1>${header}</h1><p>${fullBody}</p>`;
